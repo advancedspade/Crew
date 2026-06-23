@@ -91,7 +91,7 @@ function RecruitingContent() {
     <div className="mx-auto max-w-[1600px] px-4 py-8 sm:px-6 lg:px-8">
       <div className="mb-6 flex items-center justify-between border-b border-[var(--border)] pb-4">
         <div>
-          <h2 className="text-xs font-black uppercase tracking-[0.2em] text-[var(--foreground)]">Recruiting</h2>
+          <h2 className="text-xs font-black uppercase tracking-[0.2em] text-[var(--foreground)]">Recruiting Pipeline</h2>
           <p className="mt-1 text-[11px] text-[var(--text-secondary)]">Track candidates through your hiring pipeline</p>
         </div>
         <div className="flex items-center gap-2">

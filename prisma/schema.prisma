@@ -203,3 +203,15 @@ model OnboardingTicket {
   @@index([status])
   @@index([dueDate])
 }
+
+model Feedback {
+  id              String   @id @default(cuid())
+  type            String   // BUG, FEATURE, GENERAL
+  message         String
+  submittedBy     String?              // email from session (null if unauthenticated)
+  submittedByName String?              // display name from session
+  createdAt       DateTime @default(now())
+
+  @@index([submittedBy])
+  @@index([type])
+}

@@ -4,6 +4,7 @@ import Image from "next/image";
 import UserMenu from "@/components/UserMenu";
 import MainContent from "@/components/MainContent";
 import AuthProvider from "@/components/AuthProvider";
+import FeedbackButton from "@/components/FeedbackButton";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -42,6 +43,8 @@ export default function RootLayout({
 
           {/* Main content */}
           <MainContent>{children}</MainContent>
+
+          <FeedbackButton />
         </div>
         </AuthProvider>
       </body>
