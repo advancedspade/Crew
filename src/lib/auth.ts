@@ -47,12 +47,15 @@ export const authOptions: NextAuthOptions = {
     async signIn({ user }) {
       const allowed = isEmailAllowed(user.email || '');
       if (allowed && user.email) {
-        // Track login in database (fire-and-forget)
-        prisma.appUser.upsert({
-          where: { email: user.email.toLowerCase() },
-          update: { name: user.name || undefined, image: user.image || undefined, lastLogin: new Date() },
-          create: { email: user.email.toLowerCase(), name: user.name || null, image: user.image || null },
-        }).catch((err) => console.error('Failed to track login:', err));
+        try {
+          await prisma.appUser.upsert({
+            where: { email: user.email.toLowerCase() },
+            update: { name: user.name || undefined, image: user.image || undefined, lastLogin: new Date() },
+            create: { email: user.email.toLowerCase(), name: user.name || null, image: user.image || null },
+          });
+        } catch (err) {
+          console.error('Failed to track login:', err);
+        }
       }
       return allowed;
     },
