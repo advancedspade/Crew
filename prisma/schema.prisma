@@ -1,0 +1,205 @@
+// Prisma schema for Crew — People/HR app
+// learn more: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+// Enums
+
+enum CandidateStatus {
+  REACHED_OUT
+  IN_DIALOGUE
+  INTERVIEW
+  OFFER
+  HIRED
+  ARCHIVED
+  ON_ICE
+}
+
+enum OnboardingStage {
+  QUEUE
+  THREE_WEEKS
+  ONE_WEEK
+  STARTED
+}
+
+enum OnboardingTicketType {
+  DEEL_EMAIL
+  OFFICE
+  SAFETY
+  TRUCK
+  IT
+  ONE_WEEK
+}
+
+enum OnboardingTicketStatus {
+  OPEN
+  DONE
+}
+
+// Models
+
+model AppUser {
+  id                 String   @id @default(cuid())
+  email              String   @unique
+  name               String?
+  image              String?
+  defaultTicketTypes Json?
+  slackUserId        String?
+  lastLogin          DateTime @default(now())
+  createdAt          DateTime @default(now())
+
+  @@index([email])
+}
+
+model Recruiter {
+  id        String      @id @default(cuid())
+  name      String      @unique
+  createdAt DateTime    @default(now())
+
+  candidates Candidate[]
+}
+
+model Role {
+  id             String   @id @default(cuid())
+  title          String
+  description    String
+  team           String
+  officeLocation String?
+  employmentType String?
+  relevantPeople String[] @default([])
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  candidates Candidate[]
+
+  @@index([team])
+}
+
+model Candidate {
+  id                      String           @id @default(cuid())
+  name                    String
+  role                    String?
+  roleId                  String?
+  email                   String?
+  phone                   String?
+  linkedin                String?
+  notes                   String?
+  status                  CandidateStatus  @default(REACHED_OUT)
+  recruiterId             String?
+  recruiterEmail          String?
+  startDate               DateTime?
+  officeLocation          String?
+  salary                  Float?
+  salaryType              String?
+  manager                 String?
+  equityShares            Float?
+  team                    String?
+  employmentType          String?
+  conversion              Boolean?
+  personalAddress         String?
+  offerStatus             String?
+  offerDocId              String?
+  offerDriveLink          String?
+  offerApproverEmail      String?
+  onboardingStageOverride OnboardingStage?
+  workEmail               String?
+  resumeDriveFileId       String?
+  resumeFileName          String?
+  resumeWebViewLink       String?
+  createdAt               DateTime         @default(now())
+  updatedAt               DateTime         @updatedAt
+
+  recruiter         Recruiter?          @relation(fields: [recruiterId], references: [id], onDelete: SetNull)
+  roleRef           Role?               @relation(fields: [roleId], references: [id], onDelete: SetNull)
+  feedback          InterviewFeedback[]
+  onboardingTasks   OnboardingTask[]
+  onboardingTickets OnboardingTicket[]
+
+  @@index([status])
+  @@index([recruiterId])
+  @@index([recruiterEmail])
+  @@index([roleId])
+}
+
+model InterviewFeedback {
+  id                 String   @id @default(cuid())
+  candidateId        String
+  submittedBy        String
+  submittedByName    String?
+  submittedByImage   String?
+  feedback           String
+  technicalFeedback  String?
+  behavioralFeedback String?
+  overallScore       Int?
+  additionalNotes    String?
+  prefersVerbal      Boolean  @default(false)
+  createdAt          DateTime @default(now())
+
+  candidate Candidate @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+
+  @@index([candidateId])
+  @@index([submittedBy])
+}
+
+
+model Referral {
+  id              String   @id @default(cuid())
+  name            String
+  email           String?
+  phone           String?
+  linkedin        String?
+  notes           String?
+  submittedBy     String
+  submittedByName String?
+  createdAt       DateTime @default(now())
+
+  @@index([submittedBy])
+}
+
+model OnboardingTask {
+  id            String    @id @default(cuid())
+  candidateId   String
+  taskKey       String
+  assigneeEmail String?
+  completedAt   DateTime?
+  completedBy   String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  candidate Candidate @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+
+  @@unique([candidateId, taskKey])
+  @@index([candidateId])
+  @@index([assigneeEmail])
+}
+
+model OnboardingTicket {
+  id            String                 @id @default(cuid())
+  candidateId   String
+  type          OnboardingTicketType
+  status        OnboardingTicketStatus @default(OPEN)
+  assigneeEmail String?
+  notes         String?
+  data          Json?
+  dueDate       DateTime?
+  createdAt     DateTime               @default(now())
+  completedAt   DateTime?
+  completedBy   String?
+
+  candidate Candidate @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+
+  @@unique([candidateId, type])
+  @@index([candidateId])
+  @@index([assigneeEmail])
+  @@index([type])
+  @@index([status])
+  @@index([dueDate])
+}
