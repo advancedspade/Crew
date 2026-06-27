@@ -29,7 +29,7 @@ const SECTIONS: Section[] = [
     items: [
       { href: '/team', label: 'Team Directory' },
       { href: '/referrals', label: 'Referrals' },
-      { href: 'https://drive.google.com/drive/u/0/folders/15aiYBQJBcy0i628YnL4e6PYwjzPspq5i', label: 'Advanced Spade Company 2026 Benefits Guide', external: true },
+      { href: 'https://drive.google.com/file/d/1u0ErNRY_ogHk69LQUWs_r525gkOX1bkp/view?usp=sharing', label: '2026 Benefits Guide', external: true },
     ],
   },
 ];
