@@ -44,6 +44,12 @@ enum OnboardingTicketStatus {
   DONE
 }
 
+enum FaqStatus {
+  PENDING
+  PUBLISHED
+  ARCHIVED
+}
+
 // Models
 
 model AppUser {
@@ -214,4 +220,21 @@ model Feedback {
 
   @@index([submittedBy])
   @@index([type])
+}
+
+model Faq {
+  id              String    @id @default(cuid())
+  question        String
+  answer          String?
+  status          FaqStatus @default(PENDING)
+  submittedBy     String?              // email of submitter (null if unauthenticated)
+  submittedByName String?              // display name of submitter
+  answeredBy      String?              // admin email who answered
+  answeredAt      DateTime?
+  publishedAt     DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@index([status])
+  @@index([submittedBy])
 }

@@ -16,8 +16,8 @@ export default withAuth(
     const isOpenPath = openPaths.some((p) => path.startsWith(p))
       || /^\/api\/recruiting\/candidates\/[^/]+\/resume$/.test(path);
 
-    // Admin-only routes (recruiting pipeline + onboarding)
-    const adminOnlyPaths = ['/recruiting', '/api/recruiting', '/onboarding', '/api/onboarding'];
+    // Admin-only routes (recruiting pipeline + onboarding + FAQ admin)
+    const adminOnlyPaths = ['/recruiting', '/api/recruiting', '/onboarding', '/api/onboarding', '/faq/admin', '/api/faq/admin'];
     if (!isOpenPath && adminOnlyPaths.some((p) => path.startsWith(p))) {
       if (!isAdmin) {
         return NextResponse.rewrite(new URL('/auth/error?error=AccessDenied', req.url));
