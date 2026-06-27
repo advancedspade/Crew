@@ -3,7 +3,11 @@
 import { useState, useEffect } from 'react';
 import { resolvePersonName } from '@/components/PersonPicker';
 import PageLoading from '@/components/PageLoading';
-import { THREE_WEEK_TASKS, tasksApplyToTeam, type OnboardingTaskDef } from '@/lib/onboarding-tasks';
+
+interface Task {
+  key: string;
+  label: string;
+}
 
 interface OnboardingTaskRecord {
   taskKey: string;
@@ -41,12 +45,6 @@ interface TeamMember {
 }
 
 const OFFICE_NAMES: Record<string, string> = { LB: 'Long Beach', Vegas: 'Las Vegas', Norcal: 'NorCal' };
-
-type Task = OnboardingTaskDef;
-
-function tasksFor(c: HiredCandidate, base: Task[]): Task[] {
-  return base.filter((t) => tasksApplyToTeam(t, c.team));
-}
 
 type Stage = 'QUEUE' | 'THREE_WEEKS' | 'ONE_WEEK' | 'STARTED';
 
@@ -218,7 +216,7 @@ export default function OnboardingPage() {
       ) : (
         <div className="space-y-12">
           <QueueSection candidates={queue} onMove={moveStage} />
-          <TaskSection title="3 Weeks Out" subtitle="Start date in 8–21 days" candidates={threeWeeks} tasks={THREE_WEEK_TASKS} {...sectionProps} />
+          <TaskSection title="3 Weeks Out" subtitle="Start date in 8–21 days" candidates={threeWeeks} tasks={[]} {...sectionProps} />
           <TaskSection title="1 Week Out" subtitle="Start date within 7 days" candidates={oneWeek} tasks={[]} {...sectionProps} />
           <TaskSection title="Started" subtitle="Start date today or earlier" candidates={started} tasks={[]} {...sectionProps} />
         </div>
@@ -300,9 +298,8 @@ function TaskSection({
         <TeamColumns
           groups={groups}
           render={(c) => {
-            const candidateTasks = tasksFor(c, tasks);
             return (
-              <CandidateCard key={c.id} candidate={c} tasks={candidateTasks} team={team} complete={isComplete(c, candidateTasks)} canBump={canBump} onToggle={onToggle} onAssign={onAssign} onMove={onMove} />
+              <CandidateCard key={c.id} candidate={c} tasks={tasks} team={team} complete={isComplete(c, tasks)} canBump={canBump} onToggle={onToggle} onAssign={onAssign} onMove={onMove} />
             );
           }}
         />
