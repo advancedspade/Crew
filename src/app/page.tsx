@@ -8,6 +8,23 @@ type Section = { title: string; adminOnly?: boolean; items: NavItem[] };
 
 const SECTIONS: Section[] = [
   {
+    title: 'Recruiting',
+    items: [
+      { href: '/recruiting/candidates', label: 'Candidates' },
+      { href: '/recruiting/roles', label: 'Roles' },
+      { href: '/recruiting/feedback', label: 'Interview Feedback' },
+      { href: '/referrals', label: 'Referrals' },
+    ],
+  },
+  {
+    title: 'Team Resources',
+    items: [
+      { href: '/team', label: 'Team Directory' },
+      { href: '/faq', label: 'FAQ' },
+      { href: 'https://drive.google.com/file/d/1u0ErNRY_ogHk69LQUWs_r525gkOX1bkp/view?usp=sharing', label: '2026 Benefits Guide', external: true },
+    ],
+  },
+  {
     title: 'People Admin',
     adminOnly: true,
     items: [
@@ -15,23 +32,6 @@ const SECTIONS: Section[] = [
       { href: '/onboarding', label: 'Onboarding' },
       { href: '/onboarding/tickets', label: 'Onboarding Tickets' },
       { href: '/faq/admin', label: 'FAQ Admin' },
-    ],
-  },
-  {
-    title: 'Recruiting',
-    items: [
-      { href: '/recruiting/candidates', label: 'Candidates' },
-      { href: '/recruiting/roles', label: 'Roles' },
-      { href: '/recruiting/feedback', label: 'Interview Feedback' },
-    ],
-  },
-  {
-    title: 'Team Resources',
-    items: [
-      { href: '/team', label: 'Team Directory' },
-      { href: '/referrals', label: 'Referrals' },
-      { href: '/faq', label: 'FAQ' },
-      { href: 'https://drive.google.com/file/d/1u0ErNRY_ogHk69LQUWs_r525gkOX1bkp/view?usp=sharing', label: '2026 Benefits Guide', external: true },
     ],
   },
 ];
