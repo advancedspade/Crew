@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { OFFICE_OPTIONS, SALARY_TYPE_OPTIONS } from './types';
+import { OFFICE_OPTIONS, SALARY_TYPE_OPTIONS, TEAM_OPTIONS } from './types';
 
 interface Props {
   onCreated: () => Promise<void>;
@@ -86,7 +86,10 @@ export default function AddMemberForm({ onCreated, onCancel, managerOptions }: P
         </div>
         <div>
           <label className={labelClass}>Team</label>
-          <input type="text" value={team} onChange={(e) => setTeam(e.target.value)} className={inputClass} />
+          <select value={team} onChange={(e) => setTeam(e.target.value)} className={inputClass}>
+            <option value="">—</option>
+            {TEAM_OPTIONS.map((t) => <option key={t.value} value={t.value}>{t.label}</option>)}
+          </select>
         </div>
         <div className="sm:col-span-2">
           <label className={labelClass}>Manager</label>

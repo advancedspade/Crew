@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
-import { CHECKIN_TYPE_LABEL, CheckinType, TrackerCheckin, TrackerUser } from './types';
+import { CHECKIN_TYPE_LABEL, CheckinType, PROBATION_REVIEW_DAYS, TrackerCheckin, TrackerUser } from './types';
 import EditUserForm from './EditUserForm';
 import CheckinForm from './CheckinForm';
 
@@ -39,6 +39,11 @@ export default function TrackerRow({ user: u, expanded, onToggle, showSalary, on
   const overdue = noneYet
     ? tenureDays !== null && tenureDays > 90
     : days !== null && days > 90;
+  // Hourly probation review: flag the 3-week window leading up to the 3-month mark.
+  const reviewDue = u.salaryType === 'hourly'
+    && tenureDays !== null
+    && tenureDays >= PROBATION_REVIEW_DAYS.start
+    && tenureDays <= PROBATION_REVIEW_DAYS.end;
 
   const deleteCheckin = async (checkinId: string) => {
     if (!confirm('Delete this entry?')) return;
@@ -64,7 +69,17 @@ export default function TrackerRow({ user: u, expanded, onToggle, showSalary, on
             <p className="text-[10px] text-[var(--text-secondary)] truncate">{u.email}</p>
           </div>
         </div>
-        <div className="font-mono">{formatTenure(u.startDate)}</div>
+        <div className="font-mono flex items-center gap-1.5 min-w-0">
+          <span className="truncate">{formatTenure(u.startDate)}</span>
+          {reviewDue && (
+            <span
+              className="bg-amber-100 text-amber-900 px-1.5 py-0.5 text-[9px] font-black uppercase tracking-wider shrink-0"
+              title={`Hourly 3-month review due (${90 - (tenureDays ?? 0)} day${90 - (tenureDays ?? 0) === 1 ? '' : 's'} to 3 mo mark)`}
+            >
+              Review
+            </span>
+          )}
+        </div>
         <div
           className={`font-mono ${overdue ? 'bg-red-100 text-red-800 px-1.5 py-0.5 inline-block w-fit' : ''}`}
         >

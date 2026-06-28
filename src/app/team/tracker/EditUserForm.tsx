@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { OFFICE_OPTIONS, SALARY_TYPE_OPTIONS, TrackerUser } from './types';
+import { OFFICE_OPTIONS, SALARY_TYPE_OPTIONS, TEAM_OPTIONS, TrackerUser } from './types';
 
 interface Props {
   user: TrackerUser;
@@ -68,7 +68,13 @@ export default function EditUserForm({ user, showSalary, onSaved, managerOptions
         </div>
         <div>
           <label className={labelClass}>Team</label>
-          <input type="text" value={team} onChange={(e) => setTeam(e.target.value)} className={inputClass} />
+          <select value={team} onChange={(e) => setTeam(e.target.value)} className={inputClass}>
+            <option value="">—</option>
+            {TEAM_OPTIONS.map((t) => <option key={t.value} value={t.value}>{t.label}</option>)}
+            {team && !TEAM_OPTIONS.some((t) => t.value === team) && (
+              <option value={team}>{team}</option>
+            )}
+          </select>
         </div>
         <div className="col-span-2">
           <label className={labelClass}>Manager</label>

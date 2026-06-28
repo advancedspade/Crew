@@ -36,17 +36,28 @@ export const CHECKIN_TYPE_LABEL: Record<CheckinType, string> = {
   NOTE: 'Note',
 };
 
-/** Office locations — same set used in Recruiting (RoleModal). */
+/** Office locations — Recruiting set plus Remote for post-hire flexibility. */
 export const OFFICE_OPTIONS: { value: string; label: string }[] = [
   { value: 'LB', label: 'Long Beach' },
   { value: 'Vegas', label: 'Las Vegas' },
   { value: 'Norcal', label: 'NorCal' },
+  { value: 'Remote', label: 'Remote' },
+];
+
+export const TEAM_OPTIONS: { value: string; label: string }[] = [
+  { value: 'BizOps', label: 'BizOps' },
+  { value: 'Hardware', label: 'Hardware' },
+  { value: 'Software', label: 'Software' },
+  { value: 'Field', label: 'Field' },
 ];
 
 export const SALARY_TYPE_OPTIONS: { value: string; label: string }[] = [
   { value: 'annual', label: 'Annual' },
   { value: 'hourly', label: 'Hourly' },
 ];
+
+/** Hourly probation review window: 3 weeks before the 3-month mark. */
+export const PROBATION_REVIEW_DAYS = { start: 69, end: 90 } as const;
 
 /** Returns "1 yr 3 mo" / "4 mo" / "—" — short, readable tenure. */
 export function formatTenure(startIso: string | null): string {
