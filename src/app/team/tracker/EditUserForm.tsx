@@ -1,12 +1,13 @@
 'use client';
 
 import { useState } from 'react';
-import { TrackerUser } from './types';
+import { OFFICE_OPTIONS, SALARY_TYPE_OPTIONS, TrackerUser } from './types';
 
 interface Props {
   user: TrackerUser;
   showSalary: boolean;
   onSaved: () => Promise<void>;
+  managerOptions: { name: string; email: string }[];
 }
 
 const inputClass =
@@ -14,7 +15,7 @@ const inputClass =
 const labelClass =
   'mb-1 block text-[9px] font-black uppercase tracking-[0.15em] text-[var(--text-secondary)]';
 
-export default function EditUserForm({ user, showSalary, onSaved }: Props) {
+export default function EditUserForm({ user, showSalary, onSaved, managerOptions }: Props) {
   const [startDate, setStartDate] = useState(user.startDate ? user.startDate.slice(0, 10) : '');
   const [role, setRole] = useState(user.role || '');
   const [team, setTeam] = useState(user.team || '');
@@ -56,7 +57,10 @@ export default function EditUserForm({ user, showSalary, onSaved }: Props) {
         </div>
         <div>
           <label className={labelClass}>Office</label>
-          <input type="text" value={officeLocation} onChange={(e) => setOfficeLocation(e.target.value)} className={inputClass} />
+          <select value={officeLocation} onChange={(e) => setOfficeLocation(e.target.value)} className={inputClass}>
+            <option value="">—</option>
+            {OFFICE_OPTIONS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
+          </select>
         </div>
         <div>
           <label className={labelClass}>Role</label>
@@ -68,7 +72,15 @@ export default function EditUserForm({ user, showSalary, onSaved }: Props) {
         </div>
         <div className="col-span-2">
           <label className={labelClass}>Manager</label>
-          <input type="text" value={manager} onChange={(e) => setManager(e.target.value)} className={inputClass} />
+          <select value={manager} onChange={(e) => setManager(e.target.value)} className={inputClass}>
+            <option value="">—</option>
+            {managerOptions.map((m) => (
+              <option key={m.email} value={m.name}>{m.name} ({m.email})</option>
+            ))}
+            {manager && !managerOptions.some((m) => m.name === manager) && (
+              <option value={manager}>{manager}</option>
+            )}
+          </select>
         </div>
       </div>
 
@@ -82,7 +94,10 @@ export default function EditUserForm({ user, showSalary, onSaved }: Props) {
             </div>
             <div>
               <label className={labelClass}>Type</label>
-              <input type="text" value={salaryType} onChange={(e) => setSalaryType(e.target.value)} placeholder="annual / hourly" className={inputClass} />
+              <select value={salaryType} onChange={(e) => setSalaryType(e.target.value)} className={inputClass}>
+                <option value="">—</option>
+                {SALARY_TYPE_OPTIONS.map((s) => <option key={s.value} value={s.value}>{s.label}</option>)}
+              </select>
             </div>
             <div>
               <label className={labelClass}>Equity shares</label>

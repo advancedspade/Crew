@@ -13,9 +13,10 @@ interface Props {
   onChanged: () => Promise<void>;
   formatTenure: (iso: string | null) => string;
   daysSince: (iso: string | null | undefined) => number | null;
+  managerOptions: { name: string; email: string }[];
 }
 
-export default function TrackerRow({ user: u, expanded, onToggle, showSalary, onChanged, formatTenure, daysSince }: Props) {
+export default function TrackerRow({ user: u, expanded, onToggle, showSalary, onChanged, formatTenure, daysSince, managerOptions }: Props) {
   const [history, setHistory] = useState<TrackerCheckin[]>([]);
   const [historyLoading, setHistoryLoading] = useState(false);
 
@@ -31,8 +32,13 @@ export default function TrackerRow({ user: u, expanded, onToggle, showSalary, on
   useEffect(() => { if (expanded) loadHistory(); }, [expanded, loadHistory]);
 
   const days = daysSince(u.lastCheckin?.loggedAt);
-  const overdue = days !== null && days > 90;
   const noneYet = u.lastCheckin === null;
+  // Overdue when last check-in > 90 days ago, OR when they have no check-in
+  // and started more than 90 days ago.
+  const tenureDays = daysSince(u.startDate);
+  const overdue = noneYet
+    ? tenureDays !== null && tenureDays > 90
+    : days !== null && days > 90;
 
   const deleteCheckin = async (checkinId: string) => {
     if (!confirm('Delete this entry?')) return;
@@ -78,7 +84,7 @@ export default function TrackerRow({ user: u, expanded, onToggle, showSalary, on
         <div className="grid gap-6 border-t border-[var(--border-light)] bg-[var(--card-background)] p-5 lg:grid-cols-2">
           <div>
             <h4 className="mb-3 text-[10px] font-black uppercase tracking-[0.2em] text-[var(--text-secondary)]">Details</h4>
-            <EditUserForm user={u} showSalary={showSalary} onSaved={onChanged} />
+            <EditUserForm user={u} showSalary={showSalary} onSaved={onChanged} managerOptions={managerOptions} />
           </div>
           <div>
             <h4 className="mb-3 text-[10px] font-black uppercase tracking-[0.2em] text-[var(--text-secondary)]">Log event</h4>

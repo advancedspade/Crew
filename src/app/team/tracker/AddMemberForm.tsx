@@ -1,10 +1,12 @@
 'use client';
 
 import { useState } from 'react';
+import { OFFICE_OPTIONS, SALARY_TYPE_OPTIONS } from './types';
 
 interface Props {
   onCreated: () => Promise<void>;
   onCancel: () => void;
+  managerOptions: { name: string; email: string }[];
 }
 
 const inputClass =
@@ -12,7 +14,7 @@ const inputClass =
 const labelClass =
   'mb-1 block text-[9px] font-black uppercase tracking-[0.15em] text-[var(--text-secondary)]';
 
-export default function AddMemberForm({ onCreated, onCancel }: Props) {
+export default function AddMemberForm({ onCreated, onCancel, managerOptions }: Props) {
   const [email, setEmail] = useState('');
   const [name, setName] = useState('');
   const [startDate, setStartDate] = useState('');
@@ -73,7 +75,10 @@ export default function AddMemberForm({ onCreated, onCancel }: Props) {
         </div>
         <div>
           <label className={labelClass}>Office</label>
-          <input type="text" value={officeLocation} onChange={(e) => setOfficeLocation(e.target.value)} className={inputClass} />
+          <select value={officeLocation} onChange={(e) => setOfficeLocation(e.target.value)} className={inputClass}>
+            <option value="">—</option>
+            {OFFICE_OPTIONS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
+          </select>
         </div>
         <div>
           <label className={labelClass}>Role</label>
@@ -85,7 +90,12 @@ export default function AddMemberForm({ onCreated, onCancel }: Props) {
         </div>
         <div className="sm:col-span-2">
           <label className={labelClass}>Manager</label>
-          <input type="text" value={manager} onChange={(e) => setManager(e.target.value)} className={inputClass} />
+          <select value={manager} onChange={(e) => setManager(e.target.value)} className={inputClass}>
+            <option value="">—</option>
+            {managerOptions.map((m) => (
+              <option key={m.email} value={m.name}>{m.name} ({m.email})</option>
+            ))}
+          </select>
         </div>
       </div>
 
@@ -98,7 +108,10 @@ export default function AddMemberForm({ onCreated, onCancel }: Props) {
           </div>
           <div>
             <label className={labelClass}>Type</label>
-            <input type="text" value={salaryType} onChange={(e) => setSalaryType(e.target.value)} placeholder="annual / hourly" className={inputClass} />
+            <select value={salaryType} onChange={(e) => setSalaryType(e.target.value)} className={inputClass}>
+              <option value="">—</option>
+              {SALARY_TYPE_OPTIONS.map((s) => <option key={s.value} value={s.value}>{s.label}</option>)}
+            </select>
           </div>
           <div>
             <label className={labelClass}>Equity shares</label>

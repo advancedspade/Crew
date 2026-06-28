@@ -36,6 +36,18 @@ export const CHECKIN_TYPE_LABEL: Record<CheckinType, string> = {
   NOTE: 'Note',
 };
 
+/** Office locations — same set used in Recruiting (RoleModal). */
+export const OFFICE_OPTIONS: { value: string; label: string }[] = [
+  { value: 'LB', label: 'Long Beach' },
+  { value: 'Vegas', label: 'Las Vegas' },
+  { value: 'Norcal', label: 'NorCal' },
+];
+
+export const SALARY_TYPE_OPTIONS: { value: string; label: string }[] = [
+  { value: 'annual', label: 'Annual' },
+  { value: 'hourly', label: 'Hourly' },
+];
+
 /** Returns "1 yr 3 mo" / "4 mo" / "—" — short, readable tenure. */
 export function formatTenure(startIso: string | null): string {
   if (!startIso) return '—';

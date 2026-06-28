@@ -59,6 +59,15 @@ export default function TeamTrackerPage() {
     return sorted;
   }, [users, search, sort]);
 
+  // Manager options come from the directory itself — anyone in the tracker
+  // can be picked as someone else's manager. Sorted by name for the dropdown.
+  const managerOptions = useMemo(() => {
+    return users
+      .filter((u) => u.name && u.name.trim())
+      .map((u) => ({ name: u.name as string, email: u.email }))
+      .sort((a, b) => a.name.localeCompare(b.name));
+  }, [users]);
+
   if (isLoading) return <PageLoading />;
 
   return (
@@ -87,7 +96,7 @@ export default function TeamTrackerPage() {
         </div>
       </div>
 
-      {showAdd && <AddMemberForm onCreated={load} onCancel={() => setShowAdd(false)} />}
+      {showAdd && <AddMemberForm onCreated={load} onCancel={() => setShowAdd(false)} managerOptions={managerOptions} />}
 
       <div className="mb-3 flex items-center gap-3 text-[10px] uppercase tracking-wider text-[var(--text-secondary)]">
         <span>Sort:</span>
@@ -124,6 +133,7 @@ export default function TeamTrackerPage() {
               onChanged={load}
               formatTenure={formatTenure}
               daysSince={daysSince}
+              managerOptions={managerOptions}
             />
           ))}
         </div>
