@@ -50,19 +50,41 @@ enum FaqStatus {
   ARCHIVED
 }
 
+enum CheckinType {
+  CHECK_IN
+  SALARY_CHANGE
+  PROMOTION
+  NOTE
+}
+
 // Models
 
 model AppUser {
-  id                 String   @id @default(cuid())
-  email              String   @unique
+  id                 String    @id @default(cuid())
+  email              String    @unique
   name               String?
   image              String?
   defaultTicketTypes Json?
   slackUserId        String?
-  lastLogin          DateTime @default(now())
-  createdAt          DateTime @default(now())
+  lastLogin          DateTime  @default(now())
+  createdAt          DateTime  @default(now())
+
+  // Tracker fields — copied from Candidate on link, then editable here
+  candidateId        String?   @unique
+  startDate          DateTime?
+  role               String?
+  team               String?
+  officeLocation     String?
+  manager            String?
+  salary             Float?
+  salaryType         String?
+  equityShares       Float?
+
+  candidate Candidate? @relation(fields: [candidateId], references: [id], onDelete: SetNull)
+  checkins  Checkin[]
 
   @@index([email])
+  @@index([team])
 }
 
 model Recruiter {
@@ -128,6 +150,7 @@ model Candidate {
   feedback          InterviewFeedback[]
   onboardingTasks   OnboardingTask[]
   onboardingTickets OnboardingTicket[]
+  appUser           AppUser?
 
   @@index([status])
   @@index([recruiterId])
@@ -237,4 +260,19 @@ model Faq {
 
   @@index([status])
   @@index([submittedBy])
+}
+
+model Checkin {
+  id        String      @id @default(cuid())
+  userId    String
+  type      CheckinType @default(CHECK_IN)
+  loggedBy  String                       // admin email who logged it
+  loggedAt  DateTime    @default(now())
+  notes     String?
+  createdAt DateTime    @default(now())
+
+  user AppUser @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([loggedAt])
 }

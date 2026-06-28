@@ -31,6 +31,7 @@ const SECTIONS: Section[] = [
       { href: '/recruiting', label: 'Recruiting Pipeline' },
       { href: '/onboarding', label: 'Onboarding' },
       { href: '/onboarding/tickets', label: 'Onboarding Tickets' },
+      { href: '/team/tracker', label: 'Team Tracker' },
       { href: '/faq/admin', label: 'FAQ Admin' },
     ],
   },

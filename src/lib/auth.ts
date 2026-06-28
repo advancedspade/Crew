@@ -53,6 +53,9 @@ export const authOptions: NextAuthOptions = {
             update: { name: user.name || undefined, image: user.image || undefined, lastLogin: new Date() },
             create: { email: user.email.toLowerCase(), name: user.name || null, image: user.image || null },
           });
+          // Attempt to link to a hired Candidate via matching workEmail (no-op if no match)
+          const { linkAppUserToCandidate } = await import('@/lib/team-tracker');
+          await linkAppUserToCandidate(user.email);
         } catch (err) {
           console.error('Failed to track login:', err);
         }

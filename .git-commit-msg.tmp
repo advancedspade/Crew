@@ -1,0 +1,22 @@
+Add Team Tracker (admin-only) for tenure + check-in tracking
+
+- Schema: extend AppUser with candidateId FK, startDate, role, team,
+  officeLocation, manager, salary, salaryType, equityShares; new Checkin
+  model with CheckinType enum (CHECK_IN, SALARY_CHANGE, PROMOTION, NOTE).
+- Linking: copy Candidate snapshot to AppUser on sign-in and when
+  workEmail is set during onboarding ticket completion. Snapshot fields
+  only copy when AppUser side is empty; AppUser becomes source of truth
+  post-hire.
+- API: /api/team/tracker (GET list, POST add member), /[id] (PATCH user
+  fields), /[id]/checkins (GET history, POST event), /[id]/checkins/
+  [checkinId] (DELETE).
+- UI: /team/tracker admin page with table of tenure, days-since-checkin
+  (light red if >90), role/team, expandable row with edit form, log-event
+  form, and event history. Salary hidden behind show-salary toggle.
+  Plus an Add member form for backfilling people who haven't signed in
+  yet.
+- Middleware: gate /team/tracker and /api/team/tracker behind
+  RECRUITING_EMAILS.
+- Home: Team Tracker tile added to People Admin section.
+- Migration: prisma/migrations/manual/2026-06-28_team_tracker.sql for
+  Supabase (run before deploy).

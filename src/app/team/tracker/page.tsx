@@ -1,0 +1,133 @@
+'use client';
+
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import PageLoading from '@/components/PageLoading';
+import TrackerRow from './TrackerRow';
+import AddMemberForm from './AddMemberForm';
+import { TrackerUser, formatTenure, daysSince } from './types';
+
+type SortKey = 'name' | 'tenure' | 'lastCheckin';
+
+export default function TeamTrackerPage() {
+  const [users, setUsers] = useState<TrackerUser[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [search, setSearch] = useState('');
+  const [sort, setSort] = useState<SortKey>('lastCheckin');
+  const [expanded, setExpanded] = useState<string | null>(null);
+  const [showSalary, setShowSalary] = useState(false);
+  const [showAdd, setShowAdd] = useState(false);
+  const [error, setError] = useState('');
+
+  const load = useCallback(async () => {
+    try {
+      const res = await fetch('/api/team/tracker');
+      const data = await res.json();
+      if (data.success) setUsers(data.data);
+      else setError(data.error || 'Failed to load');
+    } catch { setError('Failed to load'); }
+  }, []);
+
+  useEffect(() => { load().finally(() => setIsLoading(false)); }, [load]);
+
+  const filtered = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    const matches = q
+      ? users.filter((u) =>
+          (u.name || '').toLowerCase().includes(q)
+          || u.email.toLowerCase().includes(q)
+          || (u.team || '').toLowerCase().includes(q)
+          || (u.role || '').toLowerCase().includes(q))
+      : users;
+
+    const sorted = [...matches];
+    if (sort === 'name') {
+      sorted.sort((a, b) => (a.name || a.email).localeCompare(b.name || b.email));
+    } else if (sort === 'tenure') {
+      sorted.sort((a, b) => {
+        const ta = a.startDate ? new Date(a.startDate).getTime() : Infinity;
+        const tb = b.startDate ? new Date(b.startDate).getTime() : Infinity;
+        return ta - tb; // longest tenure first
+      });
+    } else {
+      // lastCheckin: oldest/never first so they pop to the top
+      sorted.sort((a, b) => {
+        const ta = a.lastCheckin ? new Date(a.lastCheckin.loggedAt).getTime() : 0;
+        const tb = b.lastCheckin ? new Date(b.lastCheckin.loggedAt).getTime() : 0;
+        return ta - tb;
+      });
+    }
+    return sorted;
+  }, [users, search, sort]);
+
+  if (isLoading) return <PageLoading />;
+
+  return (
+    <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
+      <div className="mb-6 flex items-end justify-between gap-4 border-b border-[var(--border)] pb-4">
+        <div>
+          <h2 className="text-xs font-black uppercase tracking-[0.2em] text-[var(--foreground)]">Team Tracker</h2>
+          <p className="mt-1 text-[11px] text-[var(--text-secondary)]">{users.length} team member{users.length !== 1 ? 's' : ''} · tenure &amp; check-in log</p>
+        </div>
+        <div className="flex items-center gap-2">
+          <button type="button" onClick={() => setShowAdd((v) => !v)}
+            className="border border-[var(--border)] bg-[var(--foreground)] px-3 py-1.5 text-[10px] font-black uppercase tracking-wider text-[var(--background)] hover:opacity-80 transition-colors shrink-0">
+            {showAdd ? 'Cancel' : '+ Add member'}
+          </button>
+          <button type="button" onClick={() => setShowSalary((v) => !v)}
+            className={`border px-3 py-1.5 text-[10px] font-black uppercase tracking-wider transition-colors ${
+              showSalary
+                ? 'border-[var(--foreground)] bg-[var(--foreground)] text-[var(--background)]'
+                : 'border-[var(--border)] bg-[var(--card-background)] text-[var(--foreground)] hover:border-[var(--foreground)]'
+            }`}>
+            {showSalary ? 'Hide salary' : 'Show salary'}
+          </button>
+          <input type="text" value={search} onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search name, email, team…"
+            className="border border-[var(--border)] bg-[var(--card-background)] px-3 py-1.5 text-[11px] w-56" />
+        </div>
+      </div>
+
+      {showAdd && <AddMemberForm onCreated={load} onCancel={() => setShowAdd(false)} />}
+
+      <div className="mb-3 flex items-center gap-3 text-[10px] uppercase tracking-wider text-[var(--text-secondary)]">
+        <span>Sort:</span>
+        {(['lastCheckin', 'tenure', 'name'] as SortKey[]).map((k) => (
+          <button key={k} type="button" onClick={() => setSort(k)}
+            className={`px-1 ${sort === k ? 'font-black text-[var(--foreground)] underline' : 'hover:text-[var(--foreground)]'}`}>
+            {k === 'lastCheckin' ? 'Days since check-in' : k === 'tenure' ? 'Tenure' : 'Name'}
+          </button>
+        ))}
+      </div>
+
+      {error && <p className="mb-3 text-xs text-red-700">{error}</p>}
+
+      {filtered.length === 0 ? (
+        <div className="border border-dashed border-[var(--border-light)] bg-[var(--card-background)] p-10 text-center">
+          <p className="text-[11px] uppercase tracking-wider text-[var(--border-light)]">No team members match</p>
+        </div>
+      ) : (
+        <div className="border border-[var(--border)]">
+          <div className="grid grid-cols-[2fr_1fr_1fr_2fr_60px] gap-3 border-b border-[var(--border)] bg-[var(--card-background)] px-4 py-2 text-[9px] font-black uppercase tracking-[0.2em] text-[var(--text-secondary)]">
+            <div>Name</div>
+            <div>Tenure</div>
+            <div>Last check-in</div>
+            <div>Role / Team</div>
+            <div className="text-right"></div>
+          </div>
+          {filtered.map((u) => (
+            <TrackerRow
+              key={u.id}
+              user={u}
+              expanded={expanded === u.id}
+              onToggle={() => setExpanded((cur) => (cur === u.id ? null : u.id))}
+              showSalary={showSalary}
+              onChanged={load}
+              formatTenure={formatTenure}
+              daysSince={daysSince}
+            />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}

@@ -86,6 +86,7 @@ export async function PATCH(
     const completing = status === 'DONE' && existing.status !== 'DONE';
     const reopening  = status === 'OPEN' && existing.status === 'DONE';
 
+    let workEmailJustSet: string | null = null;
     if (completing && existing.type === 'DEEL_EMAIL') {
       const email = (workEmail || existing.candidate.workEmail || '').trim();
       if (!email) {
@@ -95,8 +96,16 @@ export async function PATCH(
         );
       }
       await prisma.candidate.update({ where: { id: existing.candidateId }, data: { workEmail: email } });
+      workEmailJustSet = email;
     } else if (typeof workEmail === 'string' && workEmail.trim()) {
       await prisma.candidate.update({ where: { id: existing.candidateId }, data: { workEmail: workEmail.trim() } });
+      workEmailJustSet = workEmail.trim();
+    }
+
+    // If a workEmail was set/updated, try to link a matching AppUser to this candidate
+    if (workEmailJustSet) {
+      const { linkAppUserToCandidate } = await import('@/lib/team-tracker');
+      await linkAppUserToCandidate(workEmailJustSet);
     }
 
     const updated = await prisma.onboardingTicket.update({
