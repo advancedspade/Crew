@@ -16,6 +16,8 @@ const labelClass =
   'mb-1 block text-[9px] font-black uppercase tracking-[0.15em] text-[var(--text-secondary)]';
 
 export default function EditUserForm({ user, showSalary, onSaved, managerOptions }: Props) {
+  const [name, setName] = useState(user.name || '');
+  const [email, setEmail] = useState(user.email);
   const [startDate, setStartDate] = useState(user.startDate ? user.startDate.slice(0, 10) : '');
   const [role, setRole] = useState(user.role || '');
   const [team, setTeam] = useState(user.team || '');
@@ -28,6 +30,7 @@ export default function EditUserForm({ user, showSalary, onSaved, managerOptions
   const [endDate, setEndDate] = useState(user.endDate ? user.endDate.slice(0, 10) : '');
   const [endReason, setEndReason] = useState(user.endReason || '');
   const [saving, setSaving] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const [error, setError] = useState('');
 
   const save = async () => {
@@ -37,6 +40,8 @@ export default function EditUserForm({ user, showSalary, onSaved, managerOptions
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
+          name: name.trim() || null,
+          email: email.trim(),
           startDate: startDate || null,
           role, team, officeLocation, manager,
           salary: salary === '' ? null : Number(salary),
@@ -54,9 +59,30 @@ export default function EditUserForm({ user, showSalary, onSaved, managerOptions
     finally { setSaving(false); }
   };
 
+  const remove = async () => {
+    const label = user.name || user.email;
+    if (!confirm(`Delete ${label} from the tracker? This removes the AppUser row and all logged check-ins. This cannot be undone.`)) return;
+    setDeleting(true); setError('');
+    try {
+      const res = await fetch(`/api/team/tracker/${user.id}`, { method: 'DELETE' });
+      const data = await res.json();
+      if (data.success) await onSaved();
+      else setError(data.error || 'Failed to delete');
+    } catch { setError('Failed to delete'); }
+    finally { setDeleting(false); }
+  };
+
   return (
     <div className="space-y-3">
       <div className="grid grid-cols-2 gap-3">
+        <div>
+          <label className={labelClass}>Name</label>
+          <input type="text" value={name} onChange={(e) => setName(e.target.value)} className={inputClass} />
+        </div>
+        <div>
+          <label className={labelClass}>Email</label>
+          <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} className={inputClass} />
+        </div>
         <div>
           <label className={labelClass}>Start date</label>
           <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} className={inputClass} />
@@ -148,13 +174,17 @@ export default function EditUserForm({ user, showSalary, onSaved, managerOptions
       {error && <p className="text-[10px] text-red-700">{error}</p>}
 
       <div className="flex items-center gap-2">
-        <button type="button" disabled={saving} onClick={save}
+        <button type="button" disabled={saving || deleting} onClick={save}
           className="border border-[var(--border)] bg-[var(--foreground)] px-3 py-1.5 text-[10px] font-black uppercase tracking-wider text-[var(--background)] hover:opacity-80 disabled:opacity-30 transition-colors">
           {saving ? 'Saving…' : 'Save'}
         </button>
         {user.candidateId && (
           <span className="text-[9px] uppercase tracking-wider text-[var(--border-light)]">linked to candidate</span>
         )}
+        <button type="button" disabled={saving || deleting} onClick={remove}
+          className="ml-auto border border-red-700 px-3 py-1.5 text-[10px] font-black uppercase tracking-wider text-red-700 hover:bg-red-700 hover:text-[var(--background)] disabled:opacity-30 transition-colors">
+          {deleting ? 'Deleting…' : 'Delete'}
+        </button>
       </div>
     </div>
   );
