@@ -6,13 +6,14 @@ import TrackerRow from './TrackerRow';
 import AddMemberForm from './AddMemberForm';
 import { TrackerUser, formatTenure, daysSince } from './types';
 
-type SortKey = 'name' | 'tenure' | 'lastCheckin' | 'manager';
+type SortKey = 'name' | 'tenure' | 'lastCheckin';
 
 export default function TeamTrackerPage() {
   const [users, setUsers] = useState<TrackerUser[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [sort, setSort] = useState<SortKey>('lastCheckin');
+  const [managerFilter, setManagerFilter] = useState('');
   const [expanded, setExpanded] = useState<string | null>(null);
   const [showSalary, setShowSalary] = useState(false);
   const [showAdd, setShowAdd] = useState(false);
@@ -29,15 +30,26 @@ export default function TeamTrackerPage() {
 
   useEffect(() => { load().finally(() => setIsLoading(false)); }, [load]);
 
+  // Distinct manager names actually present in the data — drives the filter dropdown.
+  const managerFilterOptions = useMemo(() => {
+    const set = new Set<string>();
+    users.forEach((u) => { if (u.manager) set.add(u.manager); });
+    return Array.from(set).sort((a, b) => a.localeCompare(b));
+  }, [users]);
+
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
-    const matches = q
+    let matches = q
       ? users.filter((u) =>
           (u.name || '').toLowerCase().includes(q)
           || u.email.toLowerCase().includes(q)
           || (u.team || '').toLowerCase().includes(q)
           || (u.role || '').toLowerCase().includes(q))
       : users;
+
+    if (managerFilter) {
+      matches = matches.filter((u) => u.manager === managerFilter);
+    }
 
     const sorted = [...matches];
     if (sort === 'name') {
@@ -48,17 +60,6 @@ export default function TeamTrackerPage() {
         const tb = b.startDate ? new Date(b.startDate).getTime() : Infinity;
         return ta - tb; // longest tenure first
       });
-    } else if (sort === 'manager') {
-      // Group by manager (alpha), unmanaged rows at the bottom, then by name within each group.
-      sorted.sort((a, b) => {
-        const ma = a.manager || '';
-        const mb = b.manager || '';
-        if (!ma && mb) return 1;
-        if (ma && !mb) return -1;
-        const byManager = ma.localeCompare(mb);
-        if (byManager !== 0) return byManager;
-        return (a.name || a.email).localeCompare(b.name || b.email);
-      });
     } else {
       // lastCheckin: oldest/never first so they pop to the top
       sorted.sort((a, b) => {
@@ -68,7 +69,7 @@ export default function TeamTrackerPage() {
       });
     }
     return sorted;
-  }, [users, search, sort]);
+  }, [users, search, sort, managerFilter]);
 
   // Manager options come from the directory itself — anyone in the tracker
   // can be picked as someone else's manager. Sorted by name for the dropdown.
@@ -109,14 +110,24 @@ export default function TeamTrackerPage() {
 
       {showAdd && <AddMemberForm onCreated={load} onCancel={() => setShowAdd(false)} managerOptions={managerOptions} />}
 
-      <div className="mb-3 flex items-center gap-3 text-[10px] uppercase tracking-wider text-[var(--text-secondary)]">
+      <div className="mb-3 flex flex-wrap items-center gap-3 text-[10px] uppercase tracking-wider text-[var(--text-secondary)]">
         <span>Sort:</span>
-        {(['lastCheckin', 'tenure', 'name', 'manager'] as SortKey[]).map((k) => (
+        {(['lastCheckin', 'tenure', 'name'] as SortKey[]).map((k) => (
           <button key={k} type="button" onClick={() => setSort(k)}
             className={`px-1 ${sort === k ? 'font-black text-[var(--foreground)] underline' : 'hover:text-[var(--foreground)]'}`}>
-            {k === 'lastCheckin' ? 'Days since check-in' : k === 'tenure' ? 'Tenure' : k === 'manager' ? 'Manager' : 'Name'}
+            {k === 'lastCheckin' ? 'Days since check-in' : k === 'tenure' ? 'Tenure' : 'Name'}
           </button>
         ))}
+        <span className="ml-2">Manager:</span>
+        <select value={managerFilter} onChange={(e) => setManagerFilter(e.target.value)}
+          className="border border-[var(--border)] bg-[var(--card-background)] px-2 py-1 text-[10px] font-mono uppercase tracking-wider">
+          <option value="">All</option>
+          {managerFilterOptions.map((m) => <option key={m} value={m}>{m}</option>)}
+        </select>
+        {managerFilter && (
+          <button type="button" onClick={() => setManagerFilter('')}
+            className="px-1 hover:text-[var(--foreground)]">Clear</button>
+        )}
       </div>
 
       {error && <p className="mb-3 text-xs text-red-700">{error}</p>}
