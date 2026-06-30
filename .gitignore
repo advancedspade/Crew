@@ -41,3 +41,7 @@ next-env.d.ts
 
 # prisma
 /prisma/migrations/dev.db*
+
+# editor / scratch
+*.tmp
+.git-commit-msg.*
