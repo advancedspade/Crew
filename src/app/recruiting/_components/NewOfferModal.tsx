@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import type { Candidate, Recruiter } from './types';
 import OfferFormFields from './OfferFormFields';
 
@@ -23,9 +23,32 @@ export default function NewOfferModal({ recruiters, onClose, onCreated }: {
   const [team, setTeam] = useState('');
   const [employmentType, setEmploymentType] = useState('');
   const [conversion, setConversion] = useState(false);
+  const [convertedFromCandidateId, setConvertedFromCandidateId] = useState('');
+  const [internOptions, setInternOptions] = useState<Candidate[]>([]);
   const [offerApproverEmail, setOfferApproverEmail] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
+
+  // Fetch active interns (hired Candidates flagged as Intern) for the conversion picker.
+  useEffect(() => {
+    if (!conversion) return;
+    if (internOptions.length > 0) return;
+    fetch('/api/recruiting/candidates')
+      .then((r) => r.json())
+      .then((d) => {
+        if (!d.success) return;
+        const interns: Candidate[] = (d.data as Candidate[]).filter(
+          (c) => c.employmentType === 'Intern' && c.status === 'HIRED',
+        );
+        setInternOptions(interns);
+      })
+      .catch(() => {});
+  }, [conversion, internOptions.length]);
+
+  const selectedIntern = useMemo(
+    () => internOptions.find((c) => c.id === convertedFromCandidateId) || null,
+    [internOptions, convertedFromCandidateId],
+  );
 
   const isComplete = !!(startDate && salary && salaryType && manager && officeLocation && team && employmentType);
 
@@ -42,6 +65,7 @@ export default function NewOfferModal({ recruiters, onClose, onCreated }: {
           startDate: startDate || null, officeLocation: officeLocation || null,
           salary: salary ? Number(salary) : null, salaryType: salaryType || null, manager: manager || null,
           team: team || null, employmentType: employmentType || null, conversion,
+          convertedFromCandidateId: conversion ? (convertedFromCandidateId || null) : null,
           offerApproverEmail: offerApproverEmail || null,
           ...(equityShares ? { equityShares: Number(equityShares) } : {}),
         }),
@@ -97,6 +121,23 @@ export default function NewOfferModal({ recruiters, onClose, onCreated }: {
             team={team} setTeam={setTeam} employmentType={employmentType} setEmploymentType={setEmploymentType}
             conversion={conversion} setConversion={setConversion}
             offerApproverEmail={offerApproverEmail} setOfferApproverEmail={setOfferApproverEmail} />
+          {conversion && (
+            <div>
+              <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-[var(--text-secondary)]">Converting from intern</label>
+              <select value={convertedFromCandidateId} onChange={(e) => setConvertedFromCandidateId(e.target.value)}
+                className="w-full border border-[var(--border)] px-3 py-2 text-sm">
+                <option value="">— Not linked —</option>
+                {internOptions.map((c) => (
+                  <option key={c.id} value={c.id}>{c.name}{c.role ? ` · ${c.role}` : ''}</option>
+                ))}
+              </select>
+              <p className="mt-1 text-xs text-[var(--border-light)]">
+                {selectedIntern
+                  ? `Will link this offer to ${selectedIntern.name}'s intern record.`
+                  : 'Pick the intern this conversion is for, or leave blank if none.'}
+              </p>
+            </div>
+          )}
           {error && <p className="text-sm text-red-600">{error}</p>}
           <div className="flex gap-2 pt-2">
             <button type="button" onClick={() => handleSave('COMPLETE')} disabled={isSubmitting}

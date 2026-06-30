@@ -16,10 +16,25 @@ export default function CandidateDetailModal({ candidate: c, onClose, onEdit }: 
   const [approverEmail, setApproverEmail] = useState<string>(c.offerApproverEmail || '');
   const [approvers, setApprovers] = useState<Approver[]>([]);
   const [savingApprover, setSavingApprover] = useState(false);
+  // Conversion links — original intern this was converted from, or FT records converted from this one.
+  const [convertedFrom, setConvertedFrom] = useState<Candidate | null>(null);
+  const [convertedTo, setConvertedTo] = useState<Candidate[]>([]);
 
   useEffect(() => {
     fetch('/api/recruiting/approvers').then(r => r.json()).then(d => { if (d.success) setApprovers(d.data); }).catch(() => {});
   }, []);
+
+  useEffect(() => {
+    if (!c.convertedFromCandidateId && c.status !== 'HIRED') return;
+    fetch('/api/recruiting/candidates').then(r => r.json()).then(d => {
+      if (!d.success) return;
+      const all = d.data as Candidate[];
+      if (c.convertedFromCandidateId) {
+        setConvertedFrom(all.find((x) => x.id === c.convertedFromCandidateId) || null);
+      }
+      setConvertedTo(all.filter((x) => x.convertedFromCandidateId === c.id));
+    }).catch(() => {});
+  }, [c.id, c.convertedFromCandidateId, c.status]);
 
   const handleApproverChange = async (email: string) => {
     setApproverEmail(email); setSavingApprover(true);
@@ -178,6 +193,23 @@ export default function CandidateDetailModal({ candidate: c, onClose, onEdit }: 
               {approveResult && (
                 <p className={`text-xs ${approveResult.startsWith('Error') ? 'text-red-600' : 'text-green-700'}`}>{approveResult}</p>
               )}
+            </>
+          )}
+          {(convertedFrom || convertedTo.length > 0) && (
+            <>
+              <hr className="border-[var(--border)]" />
+              {convertedFrom && (
+                <div>
+                  <span className="text-xs font-medium text-[var(--border-light)]">Converted from</span>
+                  <p className="text-sm text-[var(--foreground)]">{convertedFrom.name}{convertedFrom.role ? ` · ${convertedFrom.role}` : ''}<span className="ml-2 text-[10px] uppercase tracking-wider text-[var(--border-light)]">intern</span></p>
+                </div>
+              )}
+              {convertedTo.map((to) => (
+                <div key={to.id}>
+                  <span className="text-xs font-medium text-[var(--border-light)]">Converted to FT →</span>
+                  <p className="text-sm text-[var(--foreground)]">{to.name}{to.role ? ` · ${to.role}` : ''}</p>
+                </div>
+              ))}
             </>
           )}
           {c.notes && (

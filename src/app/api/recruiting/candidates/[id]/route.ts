@@ -10,7 +10,7 @@ export async function PATCH(
   try {
     const { id } = await params;
     const body = await request.json();
-    const { name, role, roleId, email, phone, linkedin, notes, status, recruiterId, recruiterEmail, startDate, officeLocation, salary, salaryType, manager, equityShares, team, employmentType, conversion, personalAddress, offerStatus, offerApproverEmail } = body;
+    const { name, role, roleId, email, phone, linkedin, notes, status, recruiterId, recruiterEmail, startDate, officeLocation, salary, salaryType, manager, equityShares, team, employmentType, conversion, convertedFromCandidateId, personalAddress, offerStatus, offerApproverEmail } = body;
 
     // Get current candidate before update
     const current = await prisma.candidate.findUnique({ where: { id } });
@@ -59,6 +59,7 @@ export async function PATCH(
     if (team !== undefined) updateData.team = team || null;
     if (employmentType !== undefined) updateData.employmentType = employmentType || null;
     if (conversion !== undefined) updateData.conversion = conversion;
+    if (convertedFromCandidateId !== undefined) updateData.convertedFromCandidateId = convertedFromCandidateId || null;
     if (personalAddress !== undefined) updateData.personalAddress = personalAddress || null;
     if (offerStatus !== undefined) updateData.offerStatus = offerStatus || null;
     if (offerApproverEmail !== undefined) updateData.offerApproverEmail = offerApproverEmail ? offerApproverEmail.toLowerCase() : null;

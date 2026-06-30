@@ -28,6 +28,7 @@ export interface Candidate {
   team: string | null;
   employmentType: string | null;
   conversion: boolean | null;
+  convertedFromCandidateId: string | null;
   personalAddress: string | null;
   offerStatus: string | null;
   offerDocId: string | null;

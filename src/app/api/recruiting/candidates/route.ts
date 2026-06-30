@@ -29,7 +29,7 @@ export async function GET() {
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { name, role, roleId, email, phone, linkedin, notes, status, recruiterId, recruiterEmail, startDate, officeLocation, salary, salaryType, manager, equityShares, team, employmentType, conversion, personalAddress, offerStatus, offerApproverEmail } = body;
+    const { name, role, roleId, email, phone, linkedin, notes, status, recruiterId, recruiterEmail, startDate, officeLocation, salary, salaryType, manager, equityShares, team, employmentType, conversion, convertedFromCandidateId, personalAddress, offerStatus, offerApproverEmail } = body;
 
     if (!name) {
       return NextResponse.json({ success: false, error: 'Name is required' }, { status: 400 });
@@ -63,6 +63,7 @@ export async function POST(request: Request) {
         team: team || null,
         employmentType: employmentType || null,
         conversion: conversion ?? null,
+        convertedFromCandidateId: convertedFromCandidateId || null,
         personalAddress: personalAddress || null,
         offerStatus: offerStatus || null,
         offerApproverEmail: offerApproverEmail ? offerApproverEmail.toLowerCase() : null,
