@@ -80,6 +80,8 @@ model AppUser {
   salaryType         String?
   equityShares       Float?
   employmentType     String?
+  endDate            DateTime?
+  endReason          String?
 
   candidate Candidate? @relation(fields: [candidateId], references: [id], onDelete: SetNull)
   checkins  Checkin[]
@@ -133,6 +135,7 @@ model Candidate {
   team                    String?
   employmentType          String?
   conversion              Boolean?
+  convertedFromCandidateId String?
   personalAddress         String?
   offerStatus             String?
   offerDocId              String?
@@ -152,11 +155,14 @@ model Candidate {
   onboardingTasks   OnboardingTask[]
   onboardingTickets OnboardingTicket[]
   appUser           AppUser?
+  convertedFrom     Candidate?          @relation("CandidateConversion", fields: [convertedFromCandidateId], references: [id], onDelete: SetNull)
+  convertedTo       Candidate[]         @relation("CandidateConversion")
 
   @@index([status])
   @@index([recruiterId])
   @@index([recruiterEmail])
   @@index([roleId])
+  @@index([convertedFromCandidateId])
 }
 
 model InterviewFeedback {

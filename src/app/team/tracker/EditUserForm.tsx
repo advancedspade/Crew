@@ -25,6 +25,8 @@ export default function EditUserForm({ user, showSalary, onSaved, managerOptions
   const [salaryType, setSalaryType] = useState(user.salaryType || '');
   const [equityShares, setEquityShares] = useState(user.equityShares !== null ? String(user.equityShares) : '');
   const [employmentType, setEmploymentType] = useState(user.employmentType || '');
+  const [endDate, setEndDate] = useState(user.endDate ? user.endDate.slice(0, 10) : '');
+  const [endReason, setEndReason] = useState(user.endReason || '');
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
 
@@ -41,6 +43,8 @@ export default function EditUserForm({ user, showSalary, onSaved, managerOptions
           salaryType: salaryType || null,
           equityShares: equityShares === '' ? null : Number(equityShares),
           employmentType: employmentType || null,
+          endDate: endDate || null,
+          endReason: endReason || null,
         }),
       });
       const data = await res.json();
@@ -126,6 +130,20 @@ export default function EditUserForm({ user, showSalary, onSaved, managerOptions
       ) : (
         <p className="text-[10px] uppercase tracking-wider text-[var(--border-light)]">Compensation hidden — toggle &quot;Show salary&quot; above to reveal.</p>
       )}
+
+      <div className="border border-[var(--border-light)] bg-[var(--background)] p-3">
+        <p className="mb-2 text-[9px] font-black uppercase tracking-[0.2em] text-[var(--text-secondary)]">Departure (moves to Alumni)</p>
+        <div className="grid grid-cols-2 gap-2">
+          <div>
+            <label className={labelClass}>End date</label>
+            <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} className={inputClass} />
+          </div>
+          <div>
+            <label className={labelClass}>Reason</label>
+            <input type="text" value={endReason} onChange={(e) => setEndReason(e.target.value)} placeholder="Departed / Converted to FT / Internship ended" className={inputClass} />
+          </div>
+        </div>
+      </div>
 
       {error && <p className="text-[10px] text-red-700">{error}</p>}
 

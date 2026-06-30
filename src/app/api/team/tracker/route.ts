@@ -11,6 +11,7 @@ export async function GET() {
   if (denial) return denial;
 
   const users = await prisma.appUser.findMany({
+    where: { endDate: null },
     orderBy: [{ name: 'asc' }, { email: 'asc' }],
     include: {
       checkins: {
@@ -37,6 +38,8 @@ export async function GET() {
     salaryType: u.salaryType,
     equityShares: u.equityShares,
     employmentType: u.employmentType,
+    endDate: u.endDate,
+    endReason: u.endReason,
     lastCheckin: u.checkins[0] || null,
     checkinCount: u._count.checkins,
     createdAt: u.createdAt,
