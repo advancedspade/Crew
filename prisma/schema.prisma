@@ -79,6 +79,7 @@ model AppUser {
   salary             Float?
   salaryType         String?
   equityShares       Float?
+  employmentType     String?
 
   candidate Candidate? @relation(fields: [candidateId], references: [id], onDelete: SetNull)
   checkins  Checkin[]

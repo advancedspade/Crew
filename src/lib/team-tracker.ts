@@ -52,6 +52,7 @@ export async function linkAppUserToCandidate(appUserEmail: string): Promise<void
       salary:         user.salary         ?? candidate.salary         ?? null,
       salaryType:     user.salaryType     ?? candidate.salaryType     ?? null,
       equityShares:   user.equityShares   ?? candidate.equityShares   ?? null,
+      employmentType: user.employmentType ?? candidate.employmentType ?? null,
     },
   });
 }

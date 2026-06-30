@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { OFFICE_OPTIONS, SALARY_TYPE_OPTIONS, TEAM_OPTIONS } from './types';
+import { EMPLOYMENT_TYPE_OPTIONS, OFFICE_OPTIONS, SALARY_TYPE_OPTIONS, TEAM_OPTIONS } from './types';
 
 interface Props {
   onCreated: () => Promise<void>;
@@ -25,6 +25,7 @@ export default function AddMemberForm({ onCreated, onCancel, managerOptions }: P
   const [salary, setSalary] = useState('');
   const [salaryType, setSalaryType] = useState('');
   const [equityShares, setEquityShares] = useState('');
+  const [employmentType, setEmploymentType] = useState('');
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
 
@@ -43,6 +44,7 @@ export default function AddMemberForm({ onCreated, onCancel, managerOptions }: P
           salary: salary === '' ? null : Number(salary),
           salaryType: salaryType || null,
           equityShares: equityShares === '' ? null : Number(equityShares),
+          employmentType: employmentType || null,
         }),
       });
       const data = await res.json();
@@ -91,13 +93,20 @@ export default function AddMemberForm({ onCreated, onCancel, managerOptions }: P
             {TEAM_OPTIONS.map((t) => <option key={t.value} value={t.value}>{t.label}</option>)}
           </select>
         </div>
-        <div className="sm:col-span-2">
+        <div>
           <label className={labelClass}>Manager</label>
           <select value={manager} onChange={(e) => setManager(e.target.value)} className={inputClass}>
             <option value="">—</option>
             {managerOptions.map((m) => (
               <option key={m.email} value={m.name}>{m.name} ({m.email})</option>
             ))}
+          </select>
+        </div>
+        <div>
+          <label className={labelClass}>Employment type</label>
+          <select value={employmentType} onChange={(e) => setEmploymentType(e.target.value)} className={inputClass}>
+            <option value="">—</option>
+            {EMPLOYMENT_TYPE_OPTIONS.map((t) => <option key={t.value} value={t.value}>{t.label}</option>)}
           </select>
         </div>
       </div>

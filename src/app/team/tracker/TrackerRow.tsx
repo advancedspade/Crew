@@ -39,11 +39,14 @@ export default function TrackerRow({ user: u, expanded, onToggle, showSalary, on
   const overdue = noneYet
     ? tenureDays !== null && tenureDays > 90
     : days !== null && days > 90;
-  // Hourly probation review: flag the 3-week window leading up to the 3-month mark.
-  const reviewDue = u.salaryType === 'hourly'
-    && tenureDays !== null
+  // 3-month review window: hourly probation + intern conversion both hit at the same point.
+  const inReviewWindow = tenureDays !== null
     && tenureDays >= PROBATION_REVIEW_DAYS.start
     && tenureDays <= PROBATION_REVIEW_DAYS.end;
+  const reviewDue = inReviewWindow && (u.salaryType === 'hourly' || u.employmentType === 'Intern');
+  const reviewReason = u.employmentType === 'Intern' ? 'Intern' : 'Hourly';
+  // Show a pill for non-default employment types so interns / part-time / seasonal stand out.
+  const employmentPill = u.employmentType && u.employmentType !== 'Full-Time' ? u.employmentType : null;
 
   const deleteCheckin = async (checkinId: string) => {
     if (!confirm('Delete this entry?')) return;
@@ -65,7 +68,14 @@ export default function TrackerRow({ user: u, expanded, onToggle, showSalary, on
             </div>
           )}
           <div className="min-w-0">
-            <p className="font-black text-[var(--foreground)] truncate">{u.name || u.email.split('@')[0]}</p>
+            <div className="flex items-center gap-1.5 min-w-0">
+              <p className="font-black text-[var(--foreground)] truncate">{u.name || u.email.split('@')[0]}</p>
+              {employmentPill && (
+                <span className="bg-[var(--foreground)] text-[var(--background)] px-1.5 py-0.5 text-[9px] font-black uppercase tracking-wider shrink-0">
+                  {employmentPill}
+                </span>
+              )}
+            </div>
             <p className="text-[10px] text-[var(--text-secondary)] truncate">{u.email}</p>
           </div>
         </div>
@@ -74,7 +84,7 @@ export default function TrackerRow({ user: u, expanded, onToggle, showSalary, on
           {reviewDue && (
             <span
               className="bg-amber-100 text-amber-900 px-1.5 py-0.5 text-[9px] font-black uppercase tracking-wider shrink-0"
-              title={`Hourly 3-month review due (${90 - (tenureDays ?? 0)} day${90 - (tenureDays ?? 0) === 1 ? '' : 's'} to 3 mo mark)`}
+              title={`${reviewReason} 3-month review due (${90 - (tenureDays ?? 0)} day${90 - (tenureDays ?? 0) === 1 ? '' : 's'} to 3 mo mark)`}
             >
               Review
             </span>

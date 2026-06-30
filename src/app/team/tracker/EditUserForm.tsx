@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { OFFICE_OPTIONS, SALARY_TYPE_OPTIONS, TEAM_OPTIONS, TrackerUser } from './types';
+import { EMPLOYMENT_TYPE_OPTIONS, OFFICE_OPTIONS, SALARY_TYPE_OPTIONS, TEAM_OPTIONS, TrackerUser } from './types';
 
 interface Props {
   user: TrackerUser;
@@ -24,6 +24,7 @@ export default function EditUserForm({ user, showSalary, onSaved, managerOptions
   const [salary, setSalary] = useState(user.salary !== null ? String(user.salary) : '');
   const [salaryType, setSalaryType] = useState(user.salaryType || '');
   const [equityShares, setEquityShares] = useState(user.equityShares !== null ? String(user.equityShares) : '');
+  const [employmentType, setEmploymentType] = useState(user.employmentType || '');
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
 
@@ -39,6 +40,7 @@ export default function EditUserForm({ user, showSalary, onSaved, managerOptions
           salary: salary === '' ? null : Number(salary),
           salaryType: salaryType || null,
           equityShares: equityShares === '' ? null : Number(equityShares),
+          employmentType: employmentType || null,
         }),
       });
       const data = await res.json();
@@ -76,7 +78,7 @@ export default function EditUserForm({ user, showSalary, onSaved, managerOptions
             )}
           </select>
         </div>
-        <div className="col-span-2">
+        <div>
           <label className={labelClass}>Manager</label>
           <select value={manager} onChange={(e) => setManager(e.target.value)} className={inputClass}>
             <option value="">—</option>
@@ -85,6 +87,16 @@ export default function EditUserForm({ user, showSalary, onSaved, managerOptions
             ))}
             {manager && !managerOptions.some((m) => m.name === manager) && (
               <option value={manager}>{manager}</option>
+            )}
+          </select>
+        </div>
+        <div>
+          <label className={labelClass}>Employment type</label>
+          <select value={employmentType} onChange={(e) => setEmploymentType(e.target.value)} className={inputClass}>
+            <option value="">—</option>
+            {EMPLOYMENT_TYPE_OPTIONS.map((t) => <option key={t.value} value={t.value}>{t.label}</option>)}
+            {employmentType && !EMPLOYMENT_TYPE_OPTIONS.some((t) => t.value === employmentType) && (
+              <option value={employmentType}>{employmentType}</option>
             )}
           </select>
         </div>

@@ -23,6 +23,7 @@ export interface TrackerUser {
   salary: number | null;
   salaryType: string | null;
   equityShares: number | null;
+  employmentType: string | null;
   lastCheckin: { id: string; type: CheckinType; loggedAt: string } | null;
   checkinCount: number;
   createdAt: string;
@@ -54,6 +55,14 @@ export const TEAM_OPTIONS: { value: string; label: string }[] = [
 export const SALARY_TYPE_OPTIONS: { value: string; label: string }[] = [
   { value: 'annual', label: 'Annual' },
   { value: 'hourly', label: 'Hourly' },
+];
+
+/** Employment types — mirrors the Recruiting offer form. */
+export const EMPLOYMENT_TYPE_OPTIONS: { value: string; label: string }[] = [
+  { value: 'Full-Time', label: 'Full-Time' },
+  { value: 'Part-Time', label: 'Part-Time' },
+  { value: 'Seasonal', label: 'Seasonal' },
+  { value: 'Intern', label: 'Intern' },
 ];
 
 /** Hourly probation review window: 3 weeks before the 3-month mark. */

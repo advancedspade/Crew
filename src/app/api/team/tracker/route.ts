@@ -36,6 +36,7 @@ export async function GET() {
     salary: u.salary,
     salaryType: u.salaryType,
     equityShares: u.equityShares,
+    employmentType: u.employmentType,
     lastCheckin: u.checkins[0] || null,
     checkinCount: u._count.checkins,
     createdAt: u.createdAt,
@@ -66,7 +67,7 @@ export async function POST(request: Request) {
       );
     }
 
-    const { name, startDate, role, team, officeLocation, manager, salary, salaryType, equityShares } = body as {
+    const { name, startDate, role, team, officeLocation, manager, salary, salaryType, equityShares, employmentType } = body as {
       name?: string | null;
       startDate?: string | null;
       role?: string | null;
@@ -76,6 +77,7 @@ export async function POST(request: Request) {
       salary?: number | string | null;
       salaryType?: string | null;
       equityShares?: number | string | null;
+      employmentType?: string | null;
     };
 
     const created = await prisma.appUser.create({
@@ -90,6 +92,7 @@ export async function POST(request: Request) {
         salary: salary === null || salary === '' || salary === undefined ? null : Number(salary),
         salaryType: salaryType?.trim() || null,
         equityShares: equityShares === null || equityShares === '' || equityShares === undefined ? null : Number(equityShares),
+        employmentType: employmentType?.trim() || null,
       },
     });
 

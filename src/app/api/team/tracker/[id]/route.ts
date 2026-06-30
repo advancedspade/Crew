@@ -16,7 +16,7 @@ export async function PATCH(
   try {
     const { id } = await params;
     const body = await request.json();
-    const { startDate, role, team, officeLocation, manager, salary, salaryType, equityShares } = body as {
+    const { startDate, role, team, officeLocation, manager, salary, salaryType, equityShares, employmentType } = body as {
       startDate?: string | null;
       role?: string | null;
       team?: string | null;
@@ -25,6 +25,7 @@ export async function PATCH(
       salary?: number | string | null;
       salaryType?: string | null;
       equityShares?: number | string | null;
+      employmentType?: string | null;
     };
 
     const data: Record<string, unknown> = {};
@@ -36,6 +37,7 @@ export async function PATCH(
     if (salary !== undefined)         data.salary         = salary === null || salary === '' ? null : Number(salary);
     if (salaryType !== undefined)     data.salaryType     = salaryType || null;
     if (equityShares !== undefined)   data.equityShares   = equityShares === null || equityShares === '' ? null : Number(equityShares);
+    if (employmentType !== undefined) data.employmentType = employmentType || null;
 
     const updated = await prisma.appUser.update({ where: { id }, data });
     return NextResponse.json({ success: true, data: updated });
