@@ -1,7 +1,7 @@
 'use client';
 
 import { useRef } from 'react';
-import type { Candidate } from '../types';
+import type { Candidate } from './types';
 
 export default function CandidateCard({ c, onClick, onEdit, onDelete, muted, draggable: isDraggable }: {
   c: Candidate; onClick: () => void; onEdit: () => void; onDelete: () => void; muted?: boolean; draggable?: boolean;

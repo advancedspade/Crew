@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import type { Candidate, Recruiter } from '../types';
+import type { Candidate, Recruiter } from './types';
 import OfferFormFields from './OfferFormFields';
 
 export default function NewOfferModal({ recruiters, onClose, onCreated }: {

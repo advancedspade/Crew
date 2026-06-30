@@ -1,8 +1,8 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import type { Candidate } from '../types';
-import { ALL_STATUSES } from '../types';
+import type { Candidate } from './types';
+import { ALL_STATUSES } from './types';
 
 interface Approver { email: string; name: string }
 

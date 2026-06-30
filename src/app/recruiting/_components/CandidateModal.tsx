@@ -1,8 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import type { Candidate } from '../types';
-import { ALL_STATUSES } from '../types';
+import type { Candidate } from './types';
+import { ALL_STATUSES } from './types';
 import OfferFormFields from './OfferFormFields';
 
 interface RoleOption {

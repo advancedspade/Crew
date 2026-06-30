@@ -1,15 +1,15 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import type { Candidate, Recruiter } from '@/features/recruiting/types';
+import type { Candidate, Recruiter } from './_components/types';
 import PageLoading from '@/components/PageLoading';
-import Board from '@/features/recruiting/components/Board';
-import CandidateCard from '@/features/recruiting/components/CandidateCard';
-import CandidateModal from '@/features/recruiting/components/CandidateModal';
-import CandidateDetailModal from '@/features/recruiting/components/CandidateDetailModal';
-import RecruiterModal from '@/features/recruiting/components/RecruiterModal';
-import OfferModal from '@/features/recruiting/components/OfferModal';
-import NewOfferModal from '@/features/recruiting/components/NewOfferModal';
+import Board from './_components/Board';
+import CandidateCard from './_components/CandidateCard';
+import CandidateModal from './_components/CandidateModal';
+import CandidateDetailModal from './_components/CandidateDetailModal';
+import RecruiterModal from './_components/RecruiterModal';
+import OfferModal from './_components/OfferModal';
+import NewOfferModal from './_components/NewOfferModal';
 
 export default function RecruitingPage() {
   return <RecruitingContent />;
